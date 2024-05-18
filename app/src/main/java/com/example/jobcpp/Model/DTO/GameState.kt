@@ -1,10 +1,12 @@
-package ud.ppc.Model.DTO
+package com.example.jobcpp.Model.DTO
 
-import ud.ppc.Model.Interface.InterfaceBoard
-import ud.ppc.Model.Interface.InterfaceBox
+
+import com.example.jobcpp.Model.Interface.InterfaceBoard
+import com.example.jobcpp.Model.Interface.InterfaceBox
+
 
 data class GameState(
-    val board:InterfaceBoard<InterfaceBox>,
+    val board: InterfaceBoard<InterfaceBox>,
     var score: Int,
     var best: Int
 )

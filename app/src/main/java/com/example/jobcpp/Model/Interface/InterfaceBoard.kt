@@ -1,4 +1,4 @@
-package ud.ppc.Model.Interface
+package com.example.jobcpp.Model.Interface
 
 import java.util.LinkedList
 
