@@ -5,14 +5,20 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sand"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="10dp"
+        android:gravity="center">
+
         <LinearLayout
             android:id="@+id/toolBar"
             android:layout_width="match_parent"
@@ -20,13 +26,15 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/border">>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical">
+
 
                 <TextView
                     android:id="@+id/textScore"
@@ -36,7 +44,7 @@
                     android:text="@string/text_score"
                     android:textAlignment="center"
                     android:textAllCaps="true"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/text_size_medium"
                     android:typeface="sans" />
 
                 <TextView
@@ -47,6 +55,7 @@
                     android:fontFamily="sans-serif-black"
                     android:text="@string/text_empty"
                     android:textAlignment="center"
+                    android:textSize="@dimen/text_size_large"
                     android:textAllCaps="true"
                     android:typeface="sans" />
             </LinearLayout>
@@ -54,7 +63,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical">
 
                 <TextView
@@ -65,7 +74,7 @@
                     android:text="@string/text_best"
                     android:textAlignment="center"
                     android:textAllCaps="true"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/text_size_medium"
                     android:typeface="normal" />
 
                 <TextView
@@ -75,33 +84,32 @@
                     android:layout_weight="2"
                     android:fontFamily="sans-serif-black"
                     android:text="@string/text_empty"
+                    android:textSize="@dimen/text_size_large"
                     android:textAlignment="center"
                     android:textAllCaps="true"
                     android:typeface="sans" />
             </LinearLayout>
+
             <Button
                 android:id="@+id/btn_newGame"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@color/blue_300"
+                android:background="@color/blue_400"
                 android:fontFamily="sans-serif-black"
                 android:text="@string/text_newGame"
                 android:textAlignment="center"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="@dimen/text_size_medium"
                 android:typeface="normal" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/container_board"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
 
         </LinearLayout>
 
-        <GridView
-            android:id="@+id/grid"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:columnWidth="120dp"
-            android:horizontalSpacing="5dp"
-            android:numColumns="4"
-            android:padding="5dp"
-            android:verticalSpacing="5dp"
-            />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
