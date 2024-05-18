@@ -8,8 +8,11 @@ import androidx.core.content.ContextCompat
 import com.example.jobcpp.R
 
 object ShapeCreator {
-    fun createBackground(context: Context, value: Int): Drawable {
-        val baseColor = ContextCompat.getColor(context, R.color.blue_300)
+    fun createBackground(
+        context: Context,
+        value: Int,
+        baseColor: Int = ContextCompat.getColor(context, R.color.white)
+    ): Drawable {
         val adjustedColor = adjustColor(baseColor, value)
         val shape = GradientDrawable()
         shape.setColor(adjustedColor)
@@ -19,8 +22,8 @@ object ShapeCreator {
     }
     private fun adjustColor(baseColor: Int, value: Int): Int {
         val hsv = FloatArray(3)
-        android.graphics.Color.colorToHSV(baseColor, hsv)
-        hsv[2] = hsv[2] * (1 - value * 0.1f)
-        return android.graphics.Color.HSVToColor(hsv)
+        Color.colorToHSV(baseColor, hsv)
+        hsv[2] = hsv[2] * (1 - value * 0.03f)
+        return Color.HSVToColor(hsv)
     }
 }
