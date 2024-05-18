@@ -13,8 +13,8 @@ object ShapeCreator {
         val adjustedColor = adjustColor(baseColor, value)
         val shape = GradientDrawable()
         shape.setColor(adjustedColor)
-        shape.setStroke(2, Color.BLACK)
-        shape.cornerRadius = 16f
+        shape.setStroke(2, Color.WHITE)
+        shape.cornerRadius = 8f
         return shape
     }
     private fun adjustColor(baseColor: Int, value: Int): Int {

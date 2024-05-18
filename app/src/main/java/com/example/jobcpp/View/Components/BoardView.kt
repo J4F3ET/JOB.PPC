@@ -1,13 +1,13 @@
 package com.example.jobcpp.View.Components
 
-//noinspection SuspiciousImport
-import android.R
+
+
 import android.content.Context
-import android.os.Build
-import android.widget.ArrayAdapter
+import android.view.ViewGroup
 import android.widget.GridView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.example.jobcpp.View.Components.Utils.TextViewAdapter
 
 class BoardView(
     context: Context,
@@ -18,13 +18,18 @@ class BoardView(
     private val gap:Int = 4;
 
     init {
-        val adapterList = ArrayAdapter(context, R.layout.simple_list_item_1, content)
+        val dimension = context.resources.displayMetrics.widthPixels.times(.8).toInt()
+        val adapterList = TextViewAdapter(context,content)
         this.grid = GridView(context,).apply {
             numColumns = columns.toInt();
+            layoutParams = ViewGroup.LayoutParams(dimension, dimension)
             horizontalSpacing = gap;
             verticalSpacing = gap;
+            setPadding(5,5,5,5);
+            clipToPadding = false
             adapter = adapterList;
-            background = ContextCompat.getDrawable(context, com.example.jobcpp.R.drawable.border)
+            background = ContextCompat.getDrawable(context, com.example.jobcpp.R.drawable.border);
+            columnWidth = GridView.AUTO_FIT
         }
     }
 }

@@ -16,8 +16,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val columns:Byte = 4;
         val items: MutableList<TextView> = mutableListOf()
-        for (num in 0..(columns.times(columns))){
-            val textView:TextView = ElementBoardView(this).textView
+        val textView:TextView = ElementBoardView(this).textView
+        for (num in 1..(columns.times(columns))){
             items.add(textView)
         }
         val boardView = BoardView(this,columns,items);
