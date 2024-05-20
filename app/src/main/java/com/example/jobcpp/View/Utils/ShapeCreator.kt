@@ -1,4 +1,4 @@
-package com.example.jobcpp.View.Components
+package com.example.jobcpp.View.Utils
 
 import android.content.Context
 import android.graphics.Color
