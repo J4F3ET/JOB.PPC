@@ -2,7 +2,6 @@ package com.example.jobcpp.View.Components
 
 
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -10,26 +9,29 @@ import android.widget.GridView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.jobcpp.Utils.MovementDirection
-import com.example.jobcpp.View.Components.Utils.TextViewAdapter
+import com.example.jobcpp.ViewModel.Service.EventToMovement
+import com.example.jobcpp.View.Utils.TextViewAdapter
 
 
 
 class BoardView(
     context: Context,
-    columns: Byte,
-    content: List<TextView>
+    private val columns: Int,
+    var content: List<Short>
 ) {
     val grid:GridView;
     private val gap:Int = 4;
     private var lastX:Float = 0f;
     private var lastY:Float = 0f;
+    private val eventToMovement: EventToMovement = EventToMovement()
 
     init {
         val dimension = context.resources.displayMetrics.widthPixels.times(.8).toInt();
         val padding = 15;
-        val adapterList = TextViewAdapter(context,content);
+        val items = adapterListValuesToListTextViews(context,this.content)
+        val adapterList = TextViewAdapter(context,items);
         this.grid = GridView(context,).apply {
-            numColumns = columns.toInt();
+            numColumns = columns;
             layoutParams = ViewGroup.LayoutParams(dimension, dimension);
             horizontalSpacing = gap;
             verticalSpacing = gap;
@@ -53,9 +55,14 @@ class BoardView(
                     event.x - this.lastX,
                     event.y - this.lastY
                 )
-                println(movementDirection)
                 this.lastY = 0f;
                 this.lastX = 0f;
+                if(movementDirection is MovementDirection){
+                    this.content = eventToMovement.executeMovement(
+                        movementDirection,
+                        content
+                    ).toList()
+                }
                 true;
             }
             else -> false
@@ -69,6 +76,16 @@ class BoardView(
             deltaY < 0 && Math.abs(deltaY) > Math.abs(deltaX) -> MovementDirection.UP
             else -> null
         }
+    }
+    fun adapterListValuesToListTextViews(context: Context, values:List<Short>):List<TextView>{
+        val items: List<TextView> = List(values.size,) {
+            ElementBoardView(
+                context,
+                this.columns,
+                values[it].toInt()
+            ).textView
+        }
+        return items
     }
 
 }

@@ -7,10 +7,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.jobcpp.R
+import com.example.jobcpp.View.Utils.ShapeCreator
 
 class ElementBoardView(
     contex:Context,
-    columns:Short=4,
+    columns:Int=4,
     value:Int=0
 ){
     val textView:TextView;
