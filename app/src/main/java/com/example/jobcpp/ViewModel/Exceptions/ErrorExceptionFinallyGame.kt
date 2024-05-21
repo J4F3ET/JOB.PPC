@@ -1,5 +1,5 @@
 package com.example.jobcpp.ViewModel.Exceptions
 
-class ErrorFinallyGame: Error() {
-    
-}
+class ErrorExceptionFinallyGame(
+    message:String
+): Exception(message)
