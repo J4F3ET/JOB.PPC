@@ -12,7 +12,7 @@ class GeneratorGameByFunctions(
     best:Int = 0,
 ) : InterfaceGeneratorGame
 {
-    val gameState: GameState;
+    var gameState: GameState;
     lateinit var boardView: BoardView
     init {
         val board =this.generatorInitialValues(this.columns.times(this.columns))
@@ -31,7 +31,11 @@ class GeneratorGameByFunctions(
         )
         return boardView.grid
     }
-    private fun generatorInitialValues(size:Int):Collection<Short>{
+    fun updateBoard(context: Context,gameState: GameState):GridView{
+        return boardView.updateContentGird(context,gameState.board)
+    }
+    private fun generatorInitialValues(size:Int):List<Short>{
+        val valueRandom:Short = listOf(2,4).random().toShort()
         val range:IntRange = 0..<size
         val index1:Int = range.random()
         var index2:Int
@@ -39,7 +43,7 @@ class GeneratorGameByFunctions(
             index2 = range.random()
         }while (index1 == index2)
         val items: List<Short> = List(size,) {
-            if (it == index1 || it == index2) 2 else 0
+            if (it == index1 || it == index2) valueRandom else 0
         }
         return items
     }
