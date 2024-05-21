@@ -6,7 +6,7 @@ import java.util.LinkedList
 
 
 data class GameState(
-    val board: LinkedList<Short>,
+    var board: List<Short>,
     var score: Int,
     var best: Int
 )
