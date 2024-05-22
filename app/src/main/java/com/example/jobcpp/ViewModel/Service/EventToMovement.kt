@@ -4,29 +4,39 @@ import android.view.MotionEvent
 import com.example.jobcpp.Model.DTO.GameState
 import com.example.jobcpp.Utils.MovementDirection
 import com.example.jobcpp.ViewModel.Exceptions.ErrorExceptionFinallyGame
-import com.example.jobcpp.ViewModel.Interface.InterfaceMoveObject
 import java.util.LinkedList
 import kotlin.math.sqrt
 
-class EventToMovement:InterfaceMoveObject {
+class EventToMovement {
     private var lastX:Float = 0f;
     private var lastY:Float = 0f;
     private val calculateToArea: (Number) -> Int = { size -> sqrt(size.toDouble()).toInt() }
     private val calculateIndexRow:(area:Int,row:Int) -> Int = {area,row-> area.times(row-1)}
     private val calculateIndexCol:(area:Int,row:Int,col:Int) -> Int = {area,row,col-> area.times(row-1)+(col-1)}
-    override fun validateMove(box: Short, board: List<Short>): Boolean {
+    private fun comparatorBoard(board: List<Short>, newBoard: List<Short>): Boolean {
+        for (i in board.indices) {
+            if (board[i] != newBoard[i]) {
+                return true
+            }
+        }
         return false
     }
-    override fun executeMovement(
+    private fun executeMovement(
         direction: MovementDirection,
         score: Int,
         board: List<Short>
     ): Pair<Number,List<Short>>{
         val area:Int = calculateToArea(board.size)
-        var resultMovement:Pair<Number, LinkedList<Short>> = Pair(score,board as LinkedList)
-        resultMovement = horizontalAndVerticalMovement(direction,score,board,area)
-
-        val newBoard = generatorRandomValue(resultMovement.second)
+        val resultMovement:Pair<Number, LinkedList<Short>> = horizontalAndVerticalMovement(
+            direction,
+            score,
+            board,
+            area
+        )
+        val newBoard = if(comparatorBoard(board,resultMovement.second))
+            generatorRandomValue(resultMovement.second)
+        else
+            resultMovement.second
         return Pair(resultMovement.first,newBoard)
     }
     private fun verifyBoxEmptyInBoard(board: LinkedList<Short>):Boolean{
@@ -69,9 +79,8 @@ class EventToMovement:InterfaceMoveObject {
                             gameState.board
                         )
                         gameState.board =  result.second
-                        gameState.score += result.first.toInt()
-                        gameState.best = if(gameState.score>gameState.best)
-                            gameState.score
+                        gameState.score = result.first.toInt()
+                        gameState.best = if(gameState.score>gameState.best)gameState.score
                         else
                             gameState.best
                     }catch (e:ErrorExceptionFinallyGame){
@@ -91,31 +100,6 @@ class EventToMovement:InterfaceMoveObject {
             else -> null
         }
     }
-    private fun horizontalMovement(
-        direction: MovementDirection,
-        scoreSum:Int,
-        board: List<Short>,
-        area:Int = calculateToArea(board.size)
-    ):Pair<Number,LinkedList<Short>> {
-        var newScoreSum = scoreSum;
-        var newBoardShort: MutableList<Short> = board.toMutableList()
-        for (row in 1..area){
-            val resultRow:Pair<List<Short>,List<Int>> = getRowToBoard(row,board,area)
-            val rowValues: MutableList<Int> = resultRow.first.map { it.toInt() }.toMutableList()
-            if (direction == MovementDirection.RIGHT){
-                rowValues.reverse()
-            }
-            val result:Pair<Int, MutableList<Int>> = shift(rowValues)
-            val newElement = if (direction == MovementDirection.RIGHT){
-                result.second.reverse()
-                result.second
-            }else
-                result.second
-            newBoardShort = replaceElement(newBoardShort,newElement,resultRow.second)
-            newScoreSum += result.first
-        }
-        return Pair(newScoreSum,LinkedList(newBoardShort))
-    }
     private fun horizontalAndVerticalMovement(
         direction: MovementDirection,
         scoreSum:Int,
@@ -124,27 +108,33 @@ class EventToMovement:InterfaceMoveObject {
     ):Pair<Number,LinkedList<Short>> {
         var newScoreSum = scoreSum;
         var newBoardShort: MutableList<Short> = board.toMutableList()
+        //es la funcion que se encarga de retornar los valores y indices
         val getElementToBoard = if(
             direction == MovementDirection.RIGHT ||
             direction == MovementDirection.LEFT
         ){
+            // los :: se usan para retornar una referencia de algo en este caso de la funcion
             ::getRowToBoard
         }else {
             ::getColumnBoard
         }
-        for (row in 1..area){
-            val resultRow:Pair<List<Short>,List<Int>> = getElementToBoard(row,board,area)
-            val rowValues: MutableList<Int> = resultRow.first.map { it.toInt() }.toMutableList()
+        //Element puede ser o referirse a fila o columnas depende la horientacion del moviemiento
+        for (element in 1..area){
+            //resultElement es un objeto que contiene la lista de valores y la lista de indices
+            val resultElement:Pair<List<Short>,List<Int>> = getElementToBoard(element,board,area)
+            val elementValues: MutableList<Int> = resultElement.first.map { it.toInt() }.toMutableList()
+            //Deacuerdo al movimiento que se hace se debe "normalizar" la entrada de al metodo shift
             if (direction == MovementDirection.RIGHT ||direction == MovementDirection.DOWN){
-                rowValues.reverse()
+                elementValues.reverse()
             }
-            val result:Pair<Int, MutableList<Int>> = shift(rowValues)
+            //shift retorna el score de los movimientos y el element ya con el movimiento efectuado
+            val result:Pair<Int, MutableList<Int>> = shift(elementValues)
             val newElement = if (direction == MovementDirection.RIGHT ||direction == MovementDirection.DOWN){
                 result.second.reverse()
                 result.second
             }else
                 result.second
-            newBoardShort = replaceElement(newBoardShort,newElement,resultRow.second)
+            newBoardShort = replaceElement(newBoardShort,newElement,resultElement.second)
             newScoreSum += result.first
         }
         return Pair(newScoreSum,LinkedList(newBoardShort))
@@ -169,6 +159,8 @@ class EventToMovement:InterfaceMoveObject {
                     element[j] = 0
                 }else if(element[j] != 0){
                     i++
+                    if(element[i] == 0)
+                        j--
                 }
                 j++
             }
@@ -176,7 +168,11 @@ class EventToMovement:InterfaceMoveObject {
         }
         return  Pair(score,element)
     }
-    private fun replaceElement(board: MutableList<Short>,element: MutableList<Int>,indices:List<Int>):MutableList<Short>{
+    private fun replaceElement(
+        board: MutableList<Short>,
+        element: MutableList<Int>,
+        indices:List<Int>
+    ):MutableList<Short>{
         var i = 0
         while (i<element.size){
             board[indices[i]] = element[i].toShort()
@@ -184,12 +180,6 @@ class EventToMovement:InterfaceMoveObject {
         }
         return board
     }
-//    private fun verticalMovement(
-//        direction: MovementDirection,
-//        board: List<Short>
-//    ):Pair<Number,List<Short>>{
-//
-//    }
     private fun getColumnBoard(
         colum:Int,
         board: List<Short>,
