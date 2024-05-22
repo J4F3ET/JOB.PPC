@@ -42,10 +42,10 @@ class MainActivity : AppCompatActivity() {
         mainViewModel
             .observableGameState
             .observe(this, Observer {
+                mainViewModel.gridView.gameState = it
+                gridView = mainViewModel.gridView.updateBoard(this)
                 bestText.text = it.best.toString()
                 scoreText.text = it.score.toString()
-                mainViewModel.gridView.gameState = it
-                gridView = mainViewModel.gridView.updateBoard(this,it)
             })
         enableEdgeToEdge()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

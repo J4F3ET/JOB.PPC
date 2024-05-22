@@ -31,11 +31,11 @@ class GeneratorGameByFunctions(
         )
         return boardView.grid
     }
-    fun updateBoard(context: Context,gameState: GameState):GridView{
-        return boardView.updateContentGird(context,gameState.board)
+    fun updateBoard(context: Context):GridView{
+        boardView.content = gameState.board
+        return boardView.updateContentGird(context)
     }
     private fun generatorInitialValues(size:Int):List<Short>{
-        val valueRandom:Short = listOf(2,4).random().toShort()
         val range:IntRange = 0..<size
         val index1:Int = range.random()
         var index2:Int
@@ -43,7 +43,7 @@ class GeneratorGameByFunctions(
             index2 = range.random()
         }while (index1 == index2)
         val items: List<Short> = List(size,) {
-            if (it == index1 || it == index2) valueRandom else 0
+            if (it == index1 || it == index2) listOf(2,4).random().toShort() else 0
         }
         return items
     }

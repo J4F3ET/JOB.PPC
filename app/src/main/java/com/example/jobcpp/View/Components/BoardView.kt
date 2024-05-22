@@ -35,7 +35,7 @@ class BoardView(
             setPadding(padding,padding,padding,padding);
         }
     }
-    fun updateContentGird(context: Context,newContent:List<Short>):GridView{
+    fun updateContentGird(context: Context):GridView{
         val items = adapterListValuesToListTextViews(context,this.content)
         this.grid.adapter = TextViewAdapter(context,items)
         return this.grid
