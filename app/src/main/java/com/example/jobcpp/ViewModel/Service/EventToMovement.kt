@@ -2,10 +2,13 @@ package com.example.jobcpp.ViewModel.Service
 
 import android.app.AlertDialog
 import android.content.Context
+import android.util.Log
 import android.view.MotionEvent
 import com.example.jobcpp.Model.DTO.GameState
+import com.example.jobcpp.Model.DTO.State
 import com.example.jobcpp.Utils.MovementDirection
 import com.example.jobcpp.ViewModel.Exceptions.ErrorExceptionFinallyGame
+import com.example.jobcpp.ViewModel.MainViewModel
 import java.util.LinkedList
 import kotlin.math.sqrt
 
@@ -20,7 +23,10 @@ class EventToMovement {
             throw ErrorExceptionFinallyGame("Congratulations you are the winner")
         }
     }
+
+    private val database= DatabaseGame()
     fun eventMove(event: MotionEvent,gameState: GameState,context: Context,alertEvent:()->Unit):GameState{
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 this.lastX = event.x;
@@ -46,6 +52,14 @@ class EventToMovement {
                         else
                             gameState.best
                         verifyWinBoxInBoard(gameState.board)
+
+                        var board = gameState.board
+                        var boardInt = board.map { it.toInt() }
+                        var score = gameState.score
+                        var best = gameState.best
+                        var gameState = State(boardInt, score,best)
+                        database.saveGameState(gameState)
+                        Log.e("ESATDO DEL JUEGO", board.get(0).toString())
                     }catch (e:ErrorExceptionFinallyGame){
                         val message:String = if (e.message==null) "Error" else e.message!!
                         showAlert(context,

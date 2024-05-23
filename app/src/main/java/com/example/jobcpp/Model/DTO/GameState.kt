@@ -10,3 +10,11 @@ data class GameState(
     var score: Int,
     var best: Int
 )
+
+data class State(
+    var board: List<Int>,
+    var score: Int,
+    var best: Int
+)
+
+

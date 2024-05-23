@@ -2,6 +2,7 @@ package com.example.jobcpp
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.GridView
@@ -14,12 +15,15 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.jobcpp.Model.DTO.GameState
+import com.example.jobcpp.Model.DTO.State
 import com.example.jobcpp.ViewModel.MainViewModel
+import com.example.jobcpp.ViewModel.Service.DatabaseGame
 import com.example.jobcpp.ViewModel.Service.EventToMovement
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mainViewModel: MainViewModel
     private val eventToMovement: EventToMovement = EventToMovement()
+    private val database= DatabaseGame()
     //Metodo que se ejecuta al tocar el grid
     private fun eventGrid(event:MotionEvent):Boolean{
         var currentGameState: GameState = mainViewModel.observableGameState.value
@@ -79,6 +83,18 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        val btn= findViewById<Button>(R.id.btnState)
+
+        btn.setOnClickListener {
+            var board= mainViewModel.observableGameState.value!!.board
+            var boardInt= board.map { it.toInt() }
+            var score= mainViewModel.observableGameState.value!!.score
+            var best= mainViewModel.observableGameState.value!!.best
+            var gameState= State(boardInt, score,best)
+            database.saveGameState(gameState)
+            Log.e("ESATDO DEL JUEGO", board.get(0).toString())
         }
     }
 }
