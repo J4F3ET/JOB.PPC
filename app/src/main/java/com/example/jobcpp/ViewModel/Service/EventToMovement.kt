@@ -1,5 +1,7 @@
 package com.example.jobcpp.ViewModel.Service
 
+import android.app.AlertDialog
+import android.content.Context
 import android.view.MotionEvent
 import com.example.jobcpp.Model.DTO.GameState
 import com.example.jobcpp.Utils.MovementDirection
@@ -13,53 +15,13 @@ class EventToMovement {
     private val calculateToArea: (Number) -> Int = { size -> sqrt(size.toDouble()).toInt() }
     private val calculateIndexRow:(area:Int,row:Int) -> Int = {area,row-> area.times(row-1)}
     private val calculateIndexCol:(area:Int,row:Int,col:Int) -> Int = {area,row,col-> area.times(row-1)+(col-1)}
-    private fun comparatorBoard(board: List<Short>, newBoard: List<Short>): Boolean {
-        for (i in board.indices) {
-            if (board[i] != newBoard[i]) {
-                return true
-            }
+    private val verifyWinBoxInBoard: (List<Short>) -> Unit = { board ->
+        if (board.find { value -> value.toInt() == 2048 } != null) {
+            throw ErrorExceptionFinallyGame("Congratulations you are the winner")
         }
-        return false
     }
-    private fun executeMovement(
-        direction: MovementDirection,
-        score: Int,
-        board: List<Short>
-    ): Pair<Number,List<Short>>{
-        val area:Int = calculateToArea(board.size)
-        val resultMovement:Pair<Number, LinkedList<Short>> = horizontalAndVerticalMovement(
-            direction,
-            score,
-            board,
-            area
-        )
-        val newBoard = if(comparatorBoard(board,resultMovement.second))
-            generatorRandomValue(resultMovement.second)
-        else
-            resultMovement.second
-        return Pair(resultMovement.first,newBoard)
-    }
-    private fun verifyBoxEmptyInBoard(board: LinkedList<Short>):Boolean{
-        val element = 0.toShort()
-        return board.find { it == element } is Short
-    }
-    private fun generatorRandomValue(board: LinkedList<Short>):LinkedList<Short>{
-        if (!verifyBoxEmptyInBoard(board))
-            throw ErrorExceptionFinallyGame("The board is full")
-        val range = board.indices
-        val valueRandom:Short = listOf(2,4).random().toShort()
-        var  i = true
-        while (i){
-            val index = range.random()
-            if(board[index] == 0.toShort()){
-                board[index] =  valueRandom
-                i = false
-            }
-        }
-        return board
-    }
-    fun eventMove(event: MotionEvent,gameState: GameState):GameState{
-         when (event.action) {
+    fun eventMove(event: MotionEvent,gameState: GameState,context: Context,alertEvent:()->Unit):GameState{
+        when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 this.lastX = event.x;
                 this.lastY = event.y;
@@ -83,13 +45,45 @@ class EventToMovement {
                         gameState.best = if(gameState.score>gameState.best)gameState.score
                         else
                             gameState.best
+                        verifyWinBoxInBoard(gameState.board)
                     }catch (e:ErrorExceptionFinallyGame){
-                        println("Tira error ${e.message}")
+                        val message:String = if (e.message==null) "Error" else e.message!!
+                        showAlert(context,
+                            message,
+                            "New Game",
+                            alertEvent
+                        )
                     }
                 }
             }
         }
         return gameState
+    }
+    private fun showAlert(context:Context,title:String,buttonMessage:String,event:()->Unit){
+        AlertDialog.Builder(context)
+            .setTitle(title)
+            .setPositiveButton(buttonMessage){ _, _ ->event()}
+            .show();
+    }
+    private fun executeMovement(
+        direction: MovementDirection,
+        score: Int,
+        board: List<Short>
+    ): Pair<Number,List<Short>>{
+        val area:Int = calculateToArea(board.size)
+        verifyGameOverInBoard(board,area)
+        val resultMovement:Pair<Number, LinkedList<Short>> = horizontalAndVerticalMovement(
+            direction,
+            score,
+            board,
+            area
+        )
+        val newBoard = if(!equalsBoards(board,resultMovement.second))
+            generatorRandomValue(resultMovement.second)
+        else
+            resultMovement.second
+
+        return Pair(resultMovement.first,newBoard)
     }
     private fun resolveOrientationEvent(deltaX: Float, deltaY: Float): MovementDirection? {
         return when {
@@ -100,6 +94,50 @@ class EventToMovement {
             else -> null
         }
     }
+    private fun equalsBoards(board: List<Short>, newBoard: List<Short>): Boolean {
+        for (i in board.indices) {
+            if (board[i] != newBoard[i]) {
+                return false
+            }
+        }
+        return true
+    }
+    private fun verifyBoxEmptyInBoard(board: LinkedList<Short>):Boolean{
+        val element = 0.toShort()
+        return board.find { it == element } is Short
+    }
+    private fun verifyGameOverInBoard(board: List<Short>,area: Int = calculateToArea(board.size)){
+        for (i in MovementDirection.entries){
+            if (
+                !equalsBoards(
+                    board,
+                    horizontalAndVerticalMovement(i,0,board,area).second
+                )
+            ){
+                return
+            }
+        }
+        //Si en ninguna de las direcciones en la cual se simulo un movimiento existio un cambio es
+        //GAME OVER
+        throw ErrorExceptionFinallyGame("GAME OVER!!")
+    }
+
+    private fun generatorRandomValue(board: LinkedList<Short>):LinkedList<Short>{
+        if (!verifyBoxEmptyInBoard(board))
+            throw ErrorExceptionFinallyGame("GAME OVER!!")
+        val range = board.indices
+        val valueRandom:Short = listOf(2,4).random().toShort()
+        var  i = true
+        while (i){
+            val index = range.random()
+            if(board[index] == 0.toShort()){
+                board[index] =  valueRandom
+                i = false
+            }
+        }
+        return board
+    }
+
     private fun horizontalAndVerticalMovement(
         direction: MovementDirection,
         scoreSum:Int,
@@ -139,7 +177,6 @@ class EventToMovement {
         }
         return Pair(newScoreSum,LinkedList(newBoardShort))
     }
-
     private fun shift(
         element:MutableList<Int>,
     ):Pair<Int,MutableList<Int>>{
