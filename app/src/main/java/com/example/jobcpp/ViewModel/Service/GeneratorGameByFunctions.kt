@@ -35,7 +35,7 @@ class GeneratorGameByFunctions(
         boardView.content = gameState.board
         return boardView.updateContentGird(context)
     }
-    private fun generatorInitialValues(size:Int):List<Short>{
+    fun generatorInitialValues(size:Int):List<Short>{
         val range:IntRange = 0..<size
         val index1:Int = range.random()
         var index2:Int
